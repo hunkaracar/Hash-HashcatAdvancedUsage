@@ -3,7 +3,7 @@
 ## HASHING Hakkında Özet
 
 ### Hash Fonksiyonlarının Amacı
-- **Hash fonksiyonları, veri bütünlüğünü doğrulamak için kullanılır.
+- Hash fonksiyonları, veri bütünlüğünü doğrulamak için kullanılır.
 - **Verinin değişmediğini ve bozulmadığını belirlemek için hash'ler kullanılır.
 
 ### Kullanım Alanları
