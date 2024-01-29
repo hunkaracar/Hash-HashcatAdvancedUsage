@@ -1,0 +1,276 @@
+
+HASHCAT Aracı Kullanımı İleri Seviye:::
+
+Günümüzde en iyi hash kırma aracı HASHCAT'tir. Ona alternatif olarak john The Ripper aracıda vardır fakat o 2007,2008 yıllarında
+daha iyiydi fakat günümüzde HASHCAT'in hızına yetişemiyor!!!
+
+Hashcat CPU'nun yanı sıra GPU 'da ekran kartınıda kullanır hatta OpenGL kütüphanesini kullanarak paralel programlama yöntemi ile daha hızlı
+iterasyonlar gerçekleştirir.
+
+
+database:
+arda,acsjvjsvjsvsjs
+
+>> Burada parola'nın HASH'lenmiş bir şekilde olduğunu anlayabiliyoruz fakat bir çok HASH türü mevcut bunu nasıl tespit edeceğiz işte bunun için
+   geliştirilmiş yazılımlar var.
+   En iyisi bunlardan ---> " name-that-hash " 'tir.
+
+   Github ---> https://github.com/HashPals/Name-That-Hash
+
+
+Örnek verelim SHA-256 Hash'i var elimizde bunu bilmiyoruz hangi tür bir hash olduğunu tespit etmek için::
+
+Terminal:
+
+nth --text "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"    ---> Bize hash'in bilgisini verecektir!!
+
+MD5 için:
+
+nth --text "827ccb0eea8a706c4c34a16891f84e7b"
+
+
+Elimizde bir HASH var ve biz bunu tespit ettik Ve Bunu kırmak istiyoruz!!!
+
+Hashcat kullanımını basitten ileri düzeye doğru göreceğiz ileri seviyede, mask'lar,rule'lar devreye girecek!!!
+
+örnekler::
+
+hashcat -a 
+
+-a  >> Attack Mode demektir; Nedir bu Attack Mode'lar 
+
+1- Dictionary Attack  -- Wordlist attack --->  mode 0
+2- Brute-Force Attack-Mask Attack  ----> mode 3
+3- Hybrid Attack  --combining wordlist+mask ----> mode 6
+
+Örnek::
+
+hashcat -a 0 -m 1400 "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5" /usr/share/wordlists/rockyou.txt --force --status
+
+
+BCRYPT içinde yapalım:
+
+hashcat -a 0 -m 3200 "$2a$05$WKyXIvenaPO6aeSAYI.cce7p6hP6kUm5CmC97dMm8asS8KeSsrExW" /usr/share/wordlists/rockyou.txt   --> Cost:5,Eğer çalışmazsa Bir dosyaya koyarak Çalıştır!!!
+
+
+
+HASHCAT RULES:::  
+
+Örnek verelim ki Wordlist saldırısı yaparken biz bu saldırı yöntemiyle olası en yüksek şifreleri deneme-yanılma yöntemiyle bilgisayarında hızından faydalanarak bulmaya çalışıyoruz.
+
+Mesela bir şifre wordliste --> galatasaray1905 olarak tutulsun fakat bu şifre Büyük harfle başlayabilir, bazı harfleri büyük olabilir küçük olabilir veya terstten yazılmış olabilir.
+Eğer de böyle olsaydı biz bunları Wordlist'te bulamayacaktık. Fakat bu parolaları bulamayacağımız anlamına gelmez. İşte burada devreye HASHCAT aracının RULES'ları giriyor.
+Yani bizim Wordlist'teki elemanları zenginleştiriyor.
+
+
+Basit bir wordlist Oluşturalım!!!
+
+besiktas1903
+besiktas1905
+galatasaray1905
+19051905
+cimbombom1905
+karakartal1903
+fenerbahce
+19071907
+1907fener
+trabzon61
+
+Bunu parola_try.txt 'diye kaydedelim.
+
+Denemeler bu hash'in üzerinden yapılacak ---> galatasaray1905 -> 959a525ed49eb57a6cff7b13fbc7d37c8ef6f094da9e5f4de671e19748eef315
+
+Terminaldeyiz ve HASHCAT ile atağımızı yapalım.
+
+>> hashcat -m 1400 -a 0 "959a525ed49eb57a6cff7b13fbc7d37c8ef6f094da9e5f4de671e19748eef315" parola_try.txt --force --status
+
+Bunu hashcat kıracaktır çünkü bu wordlistimizde var fakat wordlistimizde olmasaydı ilk harfi büyük yada herhangi bir harfi büyük yada noktalama filan olsaydı
+işte o zaman bulamazdı onun içindir ki burada RULES'lar devreye giriyor ve olasılık sayısını arttırıyoruz bu yöntemle.
+
+Bu sefer Galatasaray1905 -> d85442472d423a6842678bf1d4c09dd90e38676dc077d0929e50bfee289f89e5       olsun.
+
+Görüldüğü gibi bir harfin büyük olması hash'i bambaşka bir duruma sokuyor.
+
+Burada kullanılacak Rule-Based attack için dökümantasyona linkten ulaşabilirsin -> https://hashcat.net/wiki/doku.php?id=rule_based_attack
+
+
+>>> Bu kuralları uygulayabilmemiz için ilk önce bir TEXT dosyası açmamız gerekli!
+
+rules.rule  diye bir dosya açtık.
+
+Dosyanın içine ilk olarak ---> :    -> iki nokta koyduk bu hiç değiştirmeden kelimeleri wordlist'teki gibi denesin bir kural entegre etmeden!
+
+vim rules.txt
+
+:
+l
+u
+c
+
+Close rules.rule
+
+
+Rule 'u hashcat'e --> -r parametresi ile vereceğiz!
+
+>>> hashcat -m 1400 -a 0 -r rules.rule "d85442472d423a6842678bf1d4c09dd90e38676dc077d0929e50bfee289f89e5" parola_try.txt --force --status
+
+Burada hash kırılacaktır, burada şunu bilmemiz gerekli Galatasaray1905 wordlistimizde olmamasına rağmen vermiş olduğumuz RULES'lar ile oluşturuldu ve kırıldı!
+
+
+Peki şöyle bir soru sorulabilir en iyi RULES'lar nedir bu sorunun cevabına basit bir google'lama yaparak ulaşabiliriz. Ve aynı zamanda hashcat'in içerisinde de 
+rules dizinin altında en iyi rules'lar bulunur oradan da bakabiliriz.
+
+----->>> https://github.com/stealthsploit/Optimised-hashcat-Rule
+
+
+
+MASK ATTACK(Brute Force):::
+
+Burada bizim elimizde bir wordlist vardı ve biz gerek bu wordlist'leri kullanarak gerekse çeşitli RULES'lar kullanarak var olan wordlistlerimizin çeşitliliğini arttırdık.
+Yöntemlerimizin temelinde bir WORDLIST vardı.
+
+Fakat biz direkt olarak olası tüm olasılıkları denemek istiyorsak elimizde bir Wordlist yoksa burada HASHCAT'in bize sunmuş olduğu MASK'ları kullanabiliriz. İşte bu saldırılara Brute Force Attack denir.
+
+Basit bir Örnek verelim::
+
+Arda1905  Bunu basit bir permütasyon ve kombinasyon yoluyla ne kadar olasılık deneyeceğimizi hesaplayalım.
+
+_ _ _ _ _ _ _ _   --_> Türkçe'de 29 harf var büyük ve küçük karakterler ile bu sayı 58 olur ve 10 tane rakam var toplam 68 karakter oldu.
+68 68 68 ...           29 büyük harf + 29 küçük harf + 10 rakam  ---> 68 karakter yani her bir kısma 68 karakter gelebilir.
+
+68^8 = 457.163.239.653.376   Bu da tam olarak böyle bir kombinasyona denk gelir yani bu kadar hesaplama yapmamız gerekir en kötü durumda. 
+
+
+Hashcat bunun için bir yöntem kullanır yani aslında bu yöntem daha eskidir ama... Bu yöntem aslında bodozlama direkt olarak tüm olasılıkları denemek yerine belirli şeyleri yine brute force
+kullanarak denemeye çalışır.!! Yani daha akıllıca Brute Force yapmaya çalışılır.
+
+
+
+Örnek verelim:::
+
+Arda1905
+
+1.harf büyük harf
+3 tane küçk harf
+4 tane rakam     ----> Hesaplama yapalım _ _ _ _ _ _ _    --> 29*29*29*29*10*10*10*10  ->>> 7072810000   kombinasyon değeri!!
+                                                     
+
+Büyük harf için 29 durum 
+3 tane küçük harf için 29,29,29 durum
+4 tane rakam için 10,10,10,10  durum
+
+Mükemmel bir azalma var kombinasyon değerinde   457.163.239.653.376 -->  7.072.810.000
+
+
+HASHCAT MASK Değerleri::
+
+    ?l = abcdefghijklmnopqrstuvwxyz
+    ?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    ?d = 0123456789
+    ?h = 0123456789abcdef
+    ?H = 0123456789ABCDEF
+    ?s = «space»!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    ?a = ?l?u?d?s
+    ?b = 0x00 - 0xff
+
+
+---> Örnek == Arda1905
+
+?u?l?l?l?d?d?d?d   Bu maskeyi kullanarak attack yapabiliriz ve bu parolayı bulabiliriz böyle akıllıca yöntemlerle hızımızı arttırabiliriz.
+
+
+
+Örnek verelim 1905'in HASH halini SHA-256 değerini bulalım. 
+
+1905 --> 56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255
+
+Bunu MASK attack yöntemi ile bir deneyelim.
+
+>> hashcat -a 3 -m 1400 "56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255" ?d?d?d?d 
+
+Hashcat ?d?d?d?d
+
+Bunu deneyecek --> 0000,0001,0002.... tüm olasılıkları dener!
+
+Bir tane daha deniyelim!
+
+>>> d1905&!
+
+>> hashcat -a 3 -m 1400 "82c9771589edfebfff9aa0251c273316ed650783d265662a3e68a5b32d85ca4c" ?l?d?d?d?d?s?s
+
+Burada tüm olasılıkları deneyecek hash'i bulma süresi sahip olduğunuz donanım özelliklerine bağlı olarak değişebilir!
+
+Örnek En iyi Mask'lar ==> https://github.com/xfox64x/Hashcat-Stuffs
+
+>>>> MASK'leri birden çok şekilde oluşturup bir dosya haline getirip HASHCAT'e verip kullanabiliriz!
+
+
+Bir tane TOOL var bir wordlist'i analiz ederek en çok kullanılan MASK'leri en çok kullanılan karakter setlerini gösteriyor.
+Python ile yazıldı ve python2 ile çalışıyor!!
+
+Github Link ___> https://github.com/iphelix/pack
+
+
+Örnek kullanım::
+
+python2 statsgen.py /path/to/wordlist       ----> Wordlist'in uzunluğuna göre analiz süresi değişebilir!
+
+
+
+
+Hybrid Attack (MASK ATTACK + DICT ATTACK)
+
+
+Temelde bu attak türü mask saldırısı ve sözlük saldırısının kombinasyonlarıyla olur. Aslında buradaki mantık mask ve sözlüğü kullanarak çeşitlilik sağlamak
+ve matematiksel olarak hash'i kırma olasılığını arttırmak.
+
+
+Örnek bir sözlük içeriği: deneme.txt
+
+password
+hello         MD5 deneyelim!
+
+
+>> hashcat -m 0 -a 6 deneme.txt example.dict ?d?d?d?d
+
+Hashcat'in üreteceği çıktı:::
+
+password0000
+password0001
+password0002
+.
+.
+.
+password9999
+hello0000
+hello0001
+hello0002
+.
+.
+.
+hello9999
+
+
+Burada mask ile dict'in yeri değişebilir hashcat ona göre çıktı üretecek ona göre deneme yapacaktır!
+
+>> hashcat -m 0 -a 7 deneme.txt ?d?d?d?d example.dict
+
+Hascat'in üreteceği çıktı::
+
+0000password
+0001password
+0002password
+.
+.
+.
+9999password
+0000hello
+0001hello
+0002hello
+.
+.
+.
+9999hello
+
+
+Daha fazla bilgiyi hashcat sitesinden ulaşabilirsiniz.[https://hashcat.net/hashcat/]

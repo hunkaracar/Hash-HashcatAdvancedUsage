@@ -1,0 +1,193 @@
+
+HASHING Hakkında:::
+
+>> Hashler Neden Varlar?
+
+>>>>>>   hashfunction(pass) ---> hash
+
+
+HASH fonksiyonlarının asıl kullanım amacı ve çıkış sebebi aslında ilk olarak şöyledir:
+
+>>> Şimdi elimizde bir veri var, bu bir dosya olabilir, bir resim olabilir, bu bir yazı olabilir biz bu Veriyi A noktasından --> B noktasına
+    göndermek istiyoruz veriyi peki bu verinin yol ortasında değişmediğini nasıl hesaplayacağız nasıl bileceğiz? İşte burada hash fonksiyonları
+    devreye giriyor yani biz bir dosyanın,yazının,resmin hash'ini özet olarak alabiliriz. Dolayısıyla A noktasından B noktasına hem dosyayla hem
+    hash'i yolladığımız zaman A noktasından, B noktasındaki kişi dosyaya bakacak, Hash'e bakacak, bu hash gerçekten bu dosyanın hash'i evet ise 
+    bu dosya değiştirilmemiştir denir!!
+    Bu bir INTEGRITY(Bütünlük) kontrolüdür ve bunu doğrulamayı amaçlar.
+
+
+>>>>>>   hashfunction(resim.jpg) --> cnkajsbckja783ey2slcnlsm2   
+
+
+Bir amacı daha vardır hash fonksiyonlarının Veri Tabanlarında Parola saklanmasını içinde kullanılır!!
+Aslında VeriTabanlarında verilerimizi HASHLEMEMIZIN nedeni saldırganların sistemleri ele geçirdiklerinde hassas verileri CLEAR TEXT(açık metin) halinde
+görmesini engellemek ve güvenlik önlemi almak için kullanıyor olmamız fakat yüzde yüz bir güvenlik sağlamaz!
+
+Örnek verelim!!!
+
+>>> database:
+
+arda,123456    bunu hash fonksiyonu içine sokup işleme tabir tutarsak  __> hashfunction(123456) --> asdfg123
+
+Artık Database'de şöyle saklanır!!
+
+arda,asdfg123
+
+Fakat bunu aynı hash fonksiyonu kullanarak DENEME yöntemi ile ki buna literatürde __> Collision Attack denir, bu yöntemle kırılmaya çalışılır!!
+
+>>>> hashfunction(?) --> hashli_veri
+
+>>>> hashfunction(12345) --> asfhj23
+
+>>>> hashfunction(123456) --> asdfg123      >>> Karşılaştırma yaparak parolayı bulmaya çalışır!!!!
+
+
+Fakat burada karşımıza şu sorun çıkıyor > Donanım, sonuçta bu hash fonksiyonları denenmek için bir Resource yani bir kaynak kullanımı gerekli!
+
+Örnek verelim bir hash fonksiyonun process süresi yani veriyi alıp hash fonksiyonundan geçirip hashlenmiş veriyi elde etmesi 1 saniye olsun kısa bir
+süre gibi geliyor olabilir fakat milyonlarda veri olduğunda milyonlarca saniye demektir bu!
+
+İşte tam olarak burada saldırganlar bir yöntem geliştirmişlerdir bu yöntem elde edilen hash'in saklanması ve tekrar deneme yapılmak istendiğinde hashleri direkt 
+hash fonksiyonun içine koyup işlem süresini arttıran yöntem yerine hesaplanmış hashler üzerinden string karşılaştırması yaparak daha az Resource yani kaynak tüketimi
+yapmaktır! Ortalama süre 1 Saniye yerine bu yöntemle 0.1 saniyeye düşebilir.
+
+
+İşte bu yöntem "Raibow Table" dediğimiz çok büyük ve geniş veritabanları kullanarak sadece String karşılaştırması yaparak yapıyor. Rainbow Table 'da Precomputed(önceden hesaplanmış)
+hashler katılıyor.
+
+Peki güvenlik önlemi alanlar buna karşılık bir şey geliştirmediler mi? Tabi ki geliştirdiler buna biz SALT (tuz) diyoruz yani hash'e kattığımız bir şey!
+
+Örnek olarak::
+
+>>> hashfonksiyon(rastgele-salt+parola) --> hash
+
+Her kurum ve kuruluş veya Site için farklı olabilir!
+
+n11.com
+>>> hashfonksiyon("n11"+"123456") --> fghjk123
+
+
+amazon.com
+
+>>> hashfonksiyon("amazon0"+"123456") --> asdfg123
+
+
+Sonuç olarak SALT'lar kullanıldığı için saldırgan önceden hesaplanmış olan hashleri denemeyecektir tekrar her biri için HASH hesaplaması gerekecektir.
+Fakat bunlar saldırganları durdurmaya yetmiyor hatta durduramıyor!
+
+
+
+Aslında Hashing algoritmalarında hıza bakmamız gerekiyor tam olarak SALT'ı anlamamız için!
+
+Örnek verecek olursak bazen HASH algoritmalarının hızlı bazen de yavaş olmasını isteriz fakat bunu durumun koşullarına göre ayarlamak gerekir!!!
+
+SHA(Secure Hash Algoritm),MD5(Message Digest Method 5) gibi algoritmalar hızlı algoritmalardır genellikle dosya ve veri hashlemek için kullanılıyor fakat PAROLA hashlemek için hiç mantıklı bir algoritma değil!!
+
+Fakat burada kilit nokta biz verilerimizi daha doğrusu şifrelerimizi HASH'lerken hızlı bir algoritmamı yoksa yavaş bir algoritmamı kullanmamız gerekli onu düşünmeliyiz!!
+Aslında bizim burada istediğimiz SALT'taki mantık ile aynı saldırganın HASHCRACK işlemini yavaşlatmak ne kadar gecikirse o kadar iyi ve o kadar hızlı önlem alınabilir!!
+
+
+
+Örnek olarak açıklamak gerekirse:::
+
+>>> arda,
+
+hashfonksiyo_hizli("123456") ---> 1 sn        >>>> Bu hızli algoritmada ve her bir HASH'leme süresi 1 saniye
+
+Saldırgan
+
+hashfonksiyo_hizli("12345678") ---> 1 sn
+hashfonksiyo_hizli("123456789") ---> 1 sn
+hashfonksiyo_hizli("12345") ---> 1 sn
+hashfonksiyo_hizli("123456") ---> 1 sn
+
+
+HASH'i bulma süremiz 4 saniye sürdü  >>>> 4 sn ---> 16 sn
+
+
+Eğer Yavaş bir Algoritma ile Denersek::
+
+>>> arda,
+
+hashfonksiyo_yavas("123456") ---> 4 sn        >>>> Bu yavas algoritmada ve her bir HASH'leme süresi 4 saniye
+
+
+Saldırgan
+
+hashfonksiyo_yavas("123456789") ---> 4 sn 
+hashfonksiyo_yavas("12345678") ---> 4 sn 
+hashfonksiyo_yavas("12345") ---> 4 sn 
+hashfonksiyo_yavas("123456") ---> 4 sn 
+
+
+HASH'i bulma süremiz 16 saniye sürdü  >>>> 4 sn ---> 16 sn 
+ 
+>>> Matematiksel olarak 4sn ---> 16 sn 'ye çıktı yavaş algoritma kullanarak 4 katına çıkarttık HASHCRACK süresini!!
+    Belki önemsiz gibi gözüküyor fakat bu parolalar milyonlarca olsaydı o zaman saatler,günler kazanabilecektik!! 
+    O yüzden PAROLA hashlemelerinde yavaş bir algoritma kullanılması gerekir!!!
+
+
+
+Bizim Yavaş Hash Fonksiyonlarına ihtiyacımız var!!! çok fazla örnek var fakat en çok kullanılan tavsiye edilen 3 tane örnek verelim!!!
+
+> bcrypt
+> pbkdf2(Password-Based Key Derivation Function 2)
+> argon2
+
+Bunlar Programlama dillerine iyi implemente edilmişler hazır SALT'lanması kolay ve bu algoritmalar Aşırı Yavaşlar!!!
+
+Aşağıdaki link'ten HASHCAT aracının ne kadar sürede hash'leri kırdığını bulabilirsiniz?
+
+>>> https://gist.github.com/epixoip/a83d38f412b4737e99bbef804a270c40
+
+
+BCRYPT hash'leme algoritmasının temeline bir bakalım.
+
+
+$2a$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW
+\__/\/ \____________________/\_____________________________/
+Alg Cost      Salt                        Hash
+
+
+COST >> Karmaşıklık seviyesini belirtir ve hesaplama için harcanan süreyi ve kaynakları artırarak hash'in güvenliğini artırır. 
+        Hash'in hesaplama süresini arttrır!!!
+
+Türleri:
+
+    $1$: MD5-based crypt ('md5crypt')
+    $2$: Blowfish-based crypt ('bcrypt')
+    $sha1$: SHA-1-based crypt ('sha1crypt')
+    $5$: SHA-256-based crypt ('sha256crypt')
+    $6$: SHA-512-based crypt ('sha512crypt')
+
+
+
+Örnek verelim!!
+
+>> amazon.com
+
+hikmet:
+bcrypt("123456") --> $2a$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW
+
+*Bcrypt hash algoritmasının içinde SALT değeri saklandığı için Saldırgan bunu bilerek ve kullanarak hareket eder ve Collision Ataklarını ona göre kullanır.
+
+bcrypt(R9h/cIPz0gi.URNNX3kh2O+"abc123") --> skcbskucbskc  --> Değil
+
+bcrypt(R9h/cIPz0gi.URNNX3kh2O+"aabbcc12") --> skugsyucvsbjvcb  --> Değil
+
+bcrypt(R9h/cIPz0gi.URNNX3kh2O+"123456") --> PST9/PgBkqquzi.Ss7KIUgO2t0jWMUW     ---> eVET BU ŞİFRE >>> 123456  bu şekilde bulunur!!!
+
+
+Farklı bir güvenli yöntemde şu olabilir SALT'ı ayrı bir yerde örnek veriyorum register.php diye bir dosyada tutalım!!
+
+Örnek:::
+
+register.php
+
+sha256("exam_salt" + password) --> asdas123
+
+database:
+asdas123   >>> Burada Salt olmadığı için Saldırgan hiç bir zaman bulamayacak çünkü SALT'ı bilmiyor!! Fakat eğer kodları ele geçirirse bu yöntemde patlayacatır.Diğer yöntemlere göre
+               daha mantıklı ve güvenilir dursada bununda bazı bedelleri vardır!! Çünkü oluşturulan SALT Custom(özel) bir yapı olduğu için başka developerlar tarafından değiştirebilir
+               farklı durumlarda bozulmaya ve değiştirilmeye çok müsait olduğu için bütün DATABASE etkilebilir ve çökebilir!
+
