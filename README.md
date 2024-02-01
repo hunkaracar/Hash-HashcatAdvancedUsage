@@ -71,3 +71,7 @@ Wordlist analizi için faydalı araçlar mevcuttur. Örneğin:
 HASHCAT'in resmi sitesi: hashcat.net/hashcat/
 GitHub'daki kaynaklar ve topluluk: hashcat GitHub repository
 HASHCAT, gelişmiş saldırı yöntemleri ve performansıyla hash kırma işlemlerinde etkili bir araçtır.
+
+
+## Yardımcı ve Referans Siteler
+-[google](https://github.com/HashPals/Name-That-Hash)
