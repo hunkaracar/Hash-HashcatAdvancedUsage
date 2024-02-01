@@ -74,4 +74,8 @@ HASHCAT, gelişmiş saldırı yöntemleri ve performansıyla hash kırma işleml
 
 
 ## Yardımcı ve Referans Siteler
--[https://github.com/HashPals/Name-That-Hash](name-that-hash)
+- [https://github.com/HashPals/Name-That-Hash](https://github.com/HashPals/Name-That-Hash)
+- [https://github.com/stealthsploit/Optimised-hashcat-Rule](https://github.com/stealthsploit/Optimised-hashcat-Rule)
+- [https://github.com/xfox64x/Hashcat-Stuffs](https://github.com/xfox64x/Hashcat-Stuffs)
+- [https://github.com/iphelix/pack](https://github.com/iphelix/pack)
+- [https://hashcat.net/hashcat/](https://hashcat.net/hashcat/)
