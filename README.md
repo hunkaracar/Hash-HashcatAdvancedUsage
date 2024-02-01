@@ -74,4 +74,4 @@ HASHCAT, gelişmiş saldırı yöntemleri ve performansıyla hash kırma işleml
 
 
 ## Yardımcı ve Referans Siteler
--[google](https://github.com/HashPals/Name-That-Hash)
+-[https://github.com/HashPals/Name-That-Hash](name-that-hash)
